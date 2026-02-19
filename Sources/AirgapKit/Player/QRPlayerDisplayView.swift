@@ -57,7 +57,10 @@ final class QRPlayerDisplayView: UIView {
             imageView.centerYAnchor.constraint(equalTo: container.centerYAnchor),
             imageView.leadingAnchor.constraint(greaterThanOrEqualTo: container.leadingAnchor, constant: 10),
             imageView.trailingAnchor.constraint(lessThanOrEqualTo: container.trailingAnchor, constant: -10),
-
+            imageView.topAnchor.constraint(greaterThanOrEqualTo: container.topAnchor, constant: 16),
+            imageView.bottomAnchor.constraint(lessThanOrEqualTo: container.bottomAnchor, constant: -16),
+            
+            
             messageLabel.centerXAnchor.constraint(equalTo: container.centerXAnchor),
             messageLabel.centerYAnchor.constraint(equalTo: container.centerYAnchor),
             messageLabel.leadingAnchor.constraint(greaterThanOrEqualTo: container.leadingAnchor, constant: 10),
