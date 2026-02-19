@@ -88,7 +88,7 @@ public class QRPlayerViewModel: ChangeNotifier {
     
     private func assembleQRs(callback: @escaping (Result<[UIImage], Error>) -> Void) {
         do {
-            let encoder = try AGEncoder(data: data, chunkSize: chunkSize)
+            let encoder = try AGEncoder(data: data, chunkSize: chunkSize, qrSize: 700)
             let count = encoder.chunkCount
             totalChunks = count
             

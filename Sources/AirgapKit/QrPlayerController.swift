@@ -34,6 +34,8 @@ public final class QRPlayerViewController: UIViewController {
     private var frameRate: Float = 2.0
     
     private var selectedChunkSize: Double = 460
+    
+    private var qrSize:Double = 700
 
     // MARK: - Init
 
@@ -79,7 +81,7 @@ public final class QRPlayerViewController: UIViewController {
     }
  
     public func setupCloseButton() {
-        self.navigationItem.leftBarButtonItem  = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(self.close))
+        self.navigationItem.leftBarButtonItem  = UIBarButtonItem(title: "Cancel", style: .plain, target: self, action: #selector(self.close))
     }
     // MARK: - Setup
 
