@@ -19,11 +19,7 @@ final class QRScannerViewModel: ChangeNotifier {
 
     private var decoder: AGDecoder?
 
-    override init() {
-        super.init()
-        decoder = AGDecoder()
-    }
-
+   
     func startScanning() {
         state         = .scanning
         scannedChunks = []
@@ -73,6 +69,6 @@ final class QRScannerViewModel: ChangeNotifier {
         scannedChunks = []
         totalChunks   = 0
         progress      = 0.0
-        decoder       = AGDecoder()
+        decoder       = nil 
     }
 }

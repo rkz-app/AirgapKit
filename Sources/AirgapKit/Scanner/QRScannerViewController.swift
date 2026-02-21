@@ -12,8 +12,6 @@ import AudioToolbox
 import Foundation
 import UIKit
 
-// MARK: - Scanner State
-
 enum ScannerState: Equatable {
     case idle
     case scanning
@@ -22,11 +20,8 @@ enum ScannerState: Equatable {
     case error(String)
 }
 
-// MARK: - ViewModel
 
 
-
-// MARK: - Shared Colours (iOS 12 safe, no UIColor.systemBlue etc.)
 
 private enum Palette {
     static let blue  = UIColor(red: 0.00, green: 0.48, blue: 1.00, alpha: 1)
@@ -35,7 +30,6 @@ private enum Palette {
     static let gray  = UIColor(white: 0.6, alpha: 1)
 }
 
-// MARK: - UILabel convenience
 
 private extension UILabel {
     static func make(
@@ -57,15 +51,11 @@ private extension UILabel {
     }
 }
 
-// MARK: - FilledButton  (iOS 12 safe — no UIButton.Configuration, no UIAction)
 
-/// A self-contained rounded filled button that stores its callback and uses
-/// an @objc selector internally, so it works all the way back to iOS 12.
 final class FilledButton: UIButton {
 
     private var handler: (() -> Void)?
 
-    // Designated init
     init(title: String, color: UIColor) {
         super.init(frame: .zero)
         translatesAutoresizingMaskIntoConstraints = false
@@ -90,18 +80,14 @@ final class FilledButton: UIButton {
     }
 }
 
-// MARK: - Component Views
-
-// MARK: IdleStateView
 
 final class IdleStateView: UIView {
 
-    // The VC wires these up after init
+
     var onStart: (() -> Void)?
 
     private let iconView: UIImageView = {
         let iv          = UIImageView()
-        // Use a bundled asset; replace with UIImage(systemName:) if targeting iOS 13+
         iv.image        = UIImage(named: "icon_qr_scanner")
         iv.tintColor    = Palette.blue
         iv.contentMode  = .scaleAspectFit
@@ -151,7 +137,6 @@ final class IdleStateView: UIView {
     }
 }
 
-// MARK: ScanningStateView
 
 final class ScanningStateView: UIView {
 
@@ -251,7 +236,6 @@ final class ScanningStateView: UIView {
         pin(outer, to: self)
     }
 
-    // MARK: Update
 
     func update(scannedChunks: Set<Int>, totalChunks: Int, progress: Double) {
         if totalChunks > 0 {
@@ -276,7 +260,6 @@ final class ScanningStateView: UIView {
     }
 }
 
-// MARK: ProcessingStateView
 
 final class ProcessingStateView: UIView {
 
@@ -361,7 +344,6 @@ final class SuccessStateView: UIView {
     }
 }
 
-// MARK: ErrorStateView
 
 final class ErrorStateView: UIView {
 
@@ -403,10 +385,7 @@ final class ErrorStateView: UIView {
     }
 }
 
-// MARK: - Layout helper (file-private)
-
-/// Pins all four edges of `child` to `parent` with zero insets.
-private func pin(_ child: UIView, to parent: UIView) {
+@MainActor private func pin(_ child: UIView, to parent: UIView) {
     NSLayoutConstraint.activate([
         child.topAnchor.constraint(equalTo: parent.topAnchor),
         child.leadingAnchor.constraint(equalTo: parent.leadingAnchor),
@@ -415,26 +394,20 @@ private func pin(_ child: UIView, to parent: UIView) {
     ])
 }
 
-// MARK: - QRScannerViewController
 
 public final class QRScannerViewController: UIViewController, @MainActor AVCaptureMetadataOutputObjectsDelegate {
 
-    // MARK: Public
+
 
     public var onDataReceived: ((Data) -> Void)?
     
     public var onClose: (() -> Void)!
 
-    // MARK: Private — Camera
 
     private var captureSession: AVCaptureSession?
     private var previewLayer: AVCaptureVideoPreviewLayer?
 
-    // MARK: Private — State
-
     private let viewModel = QRScannerViewModel()
-
-    // MARK: Private — Overlay
 
     private let overlayContainer: UIVisualEffectView = {
         let v              = UIVisualEffectView(effect: UIBlurEffect(style: .extraLight))
@@ -454,7 +427,6 @@ public final class QRScannerViewController: UIViewController, @MainActor AVCaptu
         self.navigationItem.leftBarButtonItem  = UIBarButtonItem(title: "Cancel", style: .plain, target: self, action: #selector(self.close))
     }
 
-    // MARK: - Lifecycle
 
     public override func viewDidLoad() {
         super.viewDidLoad()
@@ -490,8 +462,6 @@ public final class QRScannerViewController: UIViewController, @MainActor AVCaptu
             default:                  return .portrait
             }
         }
-
-    // MARK: - Camera
 
     private func setupCamera() {
         captureSession = AVCaptureSession()
@@ -531,7 +501,6 @@ public final class QRScannerViewController: UIViewController, @MainActor AVCaptu
         }
     }
 
-    // MARK: - AVCaptureMetadataOutputObjectsDelegate
 
     public func metadataOutput(
         _ output: AVCaptureMetadataOutput,
@@ -547,7 +516,6 @@ public final class QRScannerViewController: UIViewController, @MainActor AVCaptu
         viewModel.processQRCode(str)
     }
 
-    // MARK: - Overlay
 
     private func setupOverlay() {
         view.addSubview(overlayContainer)
@@ -596,7 +564,6 @@ public final class QRScannerViewController: UIViewController, @MainActor AVCaptu
     }
 
     private func renderScanning() {
-        // Update in place if the scanning panel is already mounted
         if let existing = currentStateView as? ScanningStateView {
             existing.update(
                 scannedChunks: viewModel.scannedChunks,
