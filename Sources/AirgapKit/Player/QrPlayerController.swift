@@ -23,7 +23,7 @@ public final class QRPlayerViewController: UIViewController {
     private let displayView = QRPlayerDisplayView()
 
     private let configView = QRPlayerConfigView()
-    private let buildButton = UIButton(type: .system)
+    private let buildButton = FilledButton(title: "Build QR Codes", color: Palette.blue)
     
     private var controlsView: QRPlayerControlsView = QRPlayerControlsView()
 
@@ -73,7 +73,6 @@ public final class QRPlayerViewController: UIViewController {
         super.viewDidLoad()
         view.backgroundColor = .systemBackground
         setupUI()
-        updateUI()
     }
     
     @objc func close() {
@@ -123,11 +122,22 @@ public final class QRPlayerViewController: UIViewController {
         configView.onChunkChanged = { [weak self] newValue in
             self?.selectedChunkSize = newValue
         }
-
-        buildButton.setTitle("Build QR Codes", for: .normal)
-        buildButton.addTarget(self, action: #selector(buildTapped), for: .touchUpInside)
-
+        
+        configView.heightAnchor.constraint(equalToConstant: 80.0).isActive = true
+        controlsView.heightAnchor.constraint(equalToConstant: 80.0).isActive = true
+        
+        buildButton.heightAnchor.constraint(equalToConstant: 44).isActive = true
+        
+        buildButton.onTap {[weak self] in
+            self?.buildTapped()
+        }
+        
+        
         layoutUI()
+        
+        updateUI()
+        
+        
     }
     
     private func layoutUI() {
@@ -160,7 +170,7 @@ public final class QRPlayerViewController: UIViewController {
     // MARK: - UI Updates
 
     private func updateUI() {
-        
+        print("View model state changed \(viewModel.state)")
         switch viewModel.state {
         case .initial:
             controlsView.isHidden = true
@@ -193,6 +203,9 @@ public final class QRPlayerViewController: UIViewController {
             controlsView.setFrameLabelText(index: viewModel.currentIndex, total: viewModel.images.count)
             updateControlsView()
         }
+        
+        view.setNeedsLayout()
+        self.view.layoutIfNeeded()
     }
 
     private func showMessage(_ text: String) {
@@ -240,16 +253,14 @@ public final class QRPlayerViewController: UIViewController {
 
     // MARK: - Actions
 
-    @objc private func buildTapped() {
-        if [ViewModelState.pause, ViewModelState.pause].contains(viewModel.state) {
+    private func buildTapped() {
+        if [ViewModelState.pause, ViewModelState.playing].contains(viewModel.state) {
             viewModel.state = .initial
             viewModel.currentIndex = 0
             return
         }
-        Task {
-            viewModel.chunkSize = UInt(selectedChunkSize)
-            await viewModel.assemble()
-        }
+        viewModel.chunkSize = UInt(selectedChunkSize)
+        viewModel.assemble()
     }
     
 }

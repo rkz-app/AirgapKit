@@ -42,7 +42,6 @@ final class QRPlayerControlsView: UIView {
     private let playPauseButton = UIButton(type: .system)
     private let forwardButton = UIButton(type: .system)
     
-    private let speedTitleLabel = UILabel()
     private let speedSlider = UISlider()
     private let speedValueLabel = UILabel()
     
@@ -85,7 +84,10 @@ final class QRPlayerControlsView: UIView {
     private func setup() {
         // Buttons row
         backButton.setImage(UIImage(systemName: "backward.frame.fill"), for: .normal)
+        backButton.translatesAutoresizingMaskIntoConstraints = false
         forwardButton.setImage(UIImage(systemName: "forward.frame.fill"), for: .normal)
+        forwardButton.translatesAutoresizingMaskIntoConstraints = false
+        
         setPlayButtonImage(state: .play)
         
         [backButton, playPauseButton, forwardButton].forEach { btn in
@@ -101,10 +103,9 @@ final class QRPlayerControlsView: UIView {
         frameLabel.textAlignment = .center
         frameLabel.font = UIFont.preferredFont(forTextStyle: .footnote)
         frameLabel.textColor = .secondaryLabel
+        frameLabel.translatesAutoresizingMaskIntoConstraints = false
         
-        // Speed row
-        speedTitleLabel.text = "Speed"
-        speedTitleLabel.setContentHuggingPriority(.required, for: .horizontal)
+        
         speedValueLabel.textAlignment = .right
         speedValueLabel.setContentHuggingPriority(.required, for: .horizontal)
         
@@ -118,12 +119,12 @@ final class QRPlayerControlsView: UIView {
     
         speedSlider.addTarget(self, action: #selector(speedChanged(_:)), for: .valueChanged)
 
-        
+        speedValueLabel.translatesAutoresizingMaskIntoConstraints = false
         speedValueLabel.text = ""
         
         speedSlider.translatesAutoresizingMaskIntoConstraints = false
         
-        let speedRow = UIStackView(arrangedSubviews: [speedTitleLabel, speedSlider, speedValueLabel])
+        let speedRow = UIStackView(arrangedSubviews: [speedSlider, speedValueLabel])
         speedRow.axis = .horizontal
         speedRow.spacing = 16
         speedRow.alignment = .center
@@ -133,9 +134,7 @@ final class QRPlayerControlsView: UIView {
         buttonsRow.distribution = .fillProportionally
         buttonsRow.alignment = .center
 
-        // Ensure labels are always visible
-        speedTitleLabel.setContentHuggingPriority(.required, for: .horizontal)
-        speedTitleLabel.setContentCompressionResistancePriority(.required, for: .horizontal)
+      
         speedValueLabel.setContentHuggingPriority(.required, for: .horizontal)
         speedValueLabel.setContentCompressionResistancePriority(.required, for: .horizontal)
 
@@ -150,7 +149,8 @@ final class QRPlayerControlsView: UIView {
         horizontalControls.alignment = .center
         horizontalControls.distribution = .fill
         horizontalControls.translatesAutoresizingMaskIntoConstraints = false
-
+        
+      
         // Root vertical: frame label on top, controls below
         let root = UIStackView(arrangedSubviews: [frameLabel, horizontalControls])
         root.axis = .vertical
@@ -197,7 +197,7 @@ final class QRPlayerControlsView: UIView {
     }
     
     func setSpeedLabel(_ speed: Float) {
-        speedValueLabel.text = "\(speed) frames per second"
+        speedValueLabel.text = "\(speed) fps"
     }
 }
 

@@ -24,9 +24,13 @@ enum ViewModelError: Error {
 
 public class QRPlayerViewModel: ChangeNotifier {
         
+    
+    
     var state: ViewModelState = .initial {
         didSet {
-            notifyListeners()
+            if oldValue != state {
+                notifyListeners()
+            }
         }
     }
     
@@ -58,7 +62,10 @@ public class QRPlayerViewModel: ChangeNotifier {
     
     func assemble() {
         state = .buildingQR
-        assembleQRs { result in
+        assembleQRs {[weak self] result in
+            guard let self = self else {
+                return 
+            }
             switch result {
             case .success(let images) :
                 self.images = images;
@@ -67,8 +74,6 @@ public class QRPlayerViewModel: ChangeNotifier {
                 self.state = .qrError(err.localizedDescription)
             }
         }
-        state = .pause
-       
     }
     
     func forward() {
@@ -92,19 +97,34 @@ public class QRPlayerViewModel: ChangeNotifier {
             let count = encoder.chunkCount
             totalChunks = count
             
+
+            final class ThreadSafeResults: @unchecked Sendable {
+                private var storage: [Data?]
+                private let lock = NSLock()
+                init(count: Int) { self.storage = Array(repeating: nil, count: count) }
+                func set(_ data: Data, at index: Int) {
+                    lock.lock(); defer { lock.unlock() }
+                    storage[index] = data
+                }
+                func snapshot() -> [Data?] {
+                    lock.lock(); defer { lock.unlock() }
+                    return storage
+                }
+            }
+
+            let resultsBox = ThreadSafeResults(count: Int(count))
+            
             let group = DispatchGroup()
             
             let queue = DispatchQueue.global(qos: .userInitiated)
             
-            
-            var results: [Data?] = Array(repeating: nil, count: Int(count))
             
             for i in 0..<count {
                 group.enter()
                 queue.async {
                     do {
                         let data = try encoder.generatePNG(at: i)
-                        results[Int(i)] = data
+                        resultsBox.set(data, at: Int(i))
                     } catch {
                         
                     }
@@ -113,14 +133,15 @@ public class QRPlayerViewModel: ChangeNotifier {
             }
             
             group.notify(queue: .main) {
-                if results.contains(where: { item in
-                    item == nil
-                }) {
+                let results = resultsBox.snapshot()
+                if results.contains(where: { $0 == nil }) {
                     callback(.failure(ViewModelError.incompleteGeneration))
                 } else {
-                    
-                    callback(.success(results.map { data in
-                        UIImage(data: data!)!}))
+                    let images: [UIImage] = results.compactMap { data in
+                        guard let data else { return nil }
+                        return UIImage(data: data)
+                    }
+                    callback(.success(images))
                 }
             }
         } catch (let e) {
@@ -154,3 +175,4 @@ public class QRPlayerViewModel: ChangeNotifier {
         }
     }
 }
+

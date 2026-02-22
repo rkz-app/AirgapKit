@@ -25,10 +25,16 @@ final class QRPlayerConfigView: UIView {
 
     private func setup() {
         let stack = UIStackView(arrangedSubviews: [chunkValueLabel, chunkSlider])
-        stack.axis = .horizontal
-        stack.spacing = 12
+        stack.spacing = 8
+        stack.axis = .vertical
+        stack.alignment = .fill
+        stack.distribution = .fill
         stack.translatesAutoresizingMaskIntoConstraints = false
 
+        chunkValueLabel.font = UIFont.preferredFont(forTextStyle: .footnote)
+        chunkValueLabel.textColor = .secondaryLabel
+        chunkValueLabel.textAlignment = .center
+        
         addSubview(stack)
         NSLayoutConstraint.activate([
             stack.leadingAnchor.constraint(equalTo: leadingAnchor),
@@ -36,6 +42,8 @@ final class QRPlayerConfigView: UIView {
             stack.topAnchor.constraint(equalTo: topAnchor),
             stack.bottomAnchor.constraint(equalTo: bottomAnchor)
         ])
+        
+        chunkSlider.heightAnchor.constraint(equalToConstant: 57.5).isActive = true
 
         chunkSlider.minimumValue = 16
         chunkSlider.maximumValue = 1920
