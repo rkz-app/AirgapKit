@@ -24,8 +24,8 @@ let package = Package(
         ),
         .binaryTarget(
             name: "Airgap",
-            url: "https://github.com/rkz-app/airgap/releases/download/v0.0.9/Airgap.xcframework.zip",
-            checksum: "52fb78b30a2e721e75cee6d4fb54020a44bdb58eacaeebcbadca3d6f3c5afdb5"
+            url: "https://github.com/rkz-app/airgap/releases/download/v0.0.10/Airgap.xcframework.zip",
+            checksum: "4a432de39aef6b4881e3a3e9f8e0bc8e2a83089fbe857aba2a3620312e592845"
         )
 
     ]
